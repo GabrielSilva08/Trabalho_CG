@@ -1,2 +1,2 @@
 all:
-	g++ -Isrc/include -L src/lib -o main main.cpp ./models/classes/ponto.cpp ./models/classes/raio.cpp ./models/classes/tupla.cpp ./models/classes/matriz.cpp ./models/classes/objeto.cpp ./models/classes/esfera.cpp ./models/classes/plano.cpp ./models/classes/cilindro.cpp ./models/classes/cone.cpp ./models/classes/triangulo.cpp ./models/classes/malha.cpp ./models/classes/pontoLuminoso.cpp ./models/classes/utils.cpp -lmingw32 -lSDL2main -lSDL2
+	g++ -Isrc/include -L src/lib -o main main.cpp $(wildcard models/classes/*.cpp) -lmingw32 -lSDL2main -lSDL2

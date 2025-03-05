@@ -38,63 +38,79 @@ tupla utils::calcularEspec(ponto Pi, ponto P0, tupla normal, ponto fonte, float 
     return I_Espec;
 }
 
-tupla utils::calcularCores(float T, raio raio, tupla normal, pontoLuminoso luz, tupla I_am, objeto* objeto ){
+tupla utils::calcularCores(float T, raio raio, tupla normal, std::vector<luz*>& luzes, tupla I_am, objeto* objeto){
     ponto P0 = raio.getP0();
     tupla aux = raio.getDist().multiplyByScalar(T, false);
-
     ponto Pi(P0.getCoord().at(0) + aux.element1, P0.getCoord().at(1) + aux.element2, P0.getCoord().at(2)  + aux.element3);
-    ponto pontoLuz(luz.getCoord().at(0), luz.getCoord().at(1), luz.getCoord().at(2));
-
-    tupla I_dif = utils::calcularDiff(Pi, normal, pontoLuz, objeto->getKd(), luz.getIntensidade());
-    tupla I_espec = utils::calcularEspec(Pi, P0, normal, pontoLuz, objeto->getM(), objeto->getKe(), luz.getIntensidade());
-
     tupla Ka(objeto->getKa().element1 * I_am.element1, 
-    objeto->getKa().element2 * I_am.element2,
-    objeto->getKa().element3 * I_am.element3);
+             objeto->getKa().element2 * I_am.element2,
+             objeto->getKa().element3 * I_am.element3);
 
-    tupla cores = tupla::addTupla(Ka, I_dif, false);
-    cores = tupla::addTupla(cores, I_espec, false);
-    cores = cores.multiplyByScalar(255, false);
+    tupla cores = Ka;
 
-                    
+    for (luz* luzPtr : luzes){
+        // Luz pontual
+        if(pontoLuminoso* posLuz = dynamic_cast<pontoLuminoso*>(luzPtr)){
+            ponto pontoLuz(posLuz->getCoord().at(0), posLuz->getCoord().at(1), posLuz->getCoord().at(2));
+            tupla I_dif = utils::calcularDiff(Pi, normal, pontoLuz, objeto->getKd(), posLuz->getIntensidade());
+            tupla I_espec = utils::calcularEspec(Pi, P0, normal, pontoLuz, objeto->getM(), objeto->getKe(), posLuz->getIntensidade());
+            
+            cores = tupla::addTupla(cores, I_dif, false);
+            cores = tupla::addTupla(cores, I_espec, false);
+        }
+        // Inserir tratamento para as luzes spots e direcionais
+    
+    
+    }
+
+    cores = cores.multiplyByScalar(255, false);                    
     utils::clamp(&cores);
 
     return cores;
 }
 
-tupla utils::calcularSombra(ponto Pi, pontoLuminoso fonte, tupla Ka, tupla I_am, tupla cores, std::vector<objeto*>& objetos){
-    tupla dist = tupla::sub(fonte, Pi, false);
-    float comprimento = sqrt(pow(dist.element1, 2.0f) + pow(dist.element2, 2.0f) + pow(dist.element3, 2.0f));
-
-    raio raio(Pi, tupla::sub(fonte, Pi, true));
-
-    float t = -1000;
-
-    for (int i = 0; i < objetos.size(); i++)
-    {
-         
-        float aux = objetos[i]->colisao(raio);
-        
-        if ((t == -1000 && aux != -1000) || (t != -1000 && aux != -1000 && aux < t))
-        {
-            t = aux;
-        }      
-    }
+tupla utils::calcularSombra(ponto Pi, std::vector<luz*>& luzes, tupla Ka, tupla I_am, tupla cores, std::vector<objeto*>& objetos){
+    tupla energiaAcumulada(cores.element1/255, cores.element2/255, cores.element3/255); // Energia total das luzes
     
-    if (t == -1000 || t > comprimento || t < 1)
-    {
-        return cores;
+    for(luz* luzPtr: luzes){
+        bool emSombra = true; // Flag para verificar se o ponto está sombreado
+
+        // Luz pontual
+        if(pontoLuminoso* posLuz = dynamic_cast<pontoLuminoso*>(luzPtr)){
+            tupla dist = tupla::sub(*posLuz, Pi, false);
+            float comprimento = sqrt(pow(dist.element1, 2.0f) + pow(dist.element2, 2.0f) + pow(dist.element3, 2.0f));
+
+            raio raio(Pi, tupla::sub(*posLuz, Pi, true));
+            float t = -1000;
+
+            for(int i = 0; i < objetos.size(); i++){
+                float aux = objetos[i]->colisao(raio);
+
+                if ((t == -1000 && aux != -1000) || (t != -1000 && aux != -1000 && aux < t))
+                {
+                    t = aux;
+                }      
+            }
+
+            if (t == -1000 || t > comprimento || t < 1)
+            {
+                emSombra = false;
+            }
+        } // Inserir os outros casos aqui de luzes
+
+
+
+        // Se a luz não estiver bloqueada, soma sua contribuição à energia total
+        if(!emSombra){
+            energiaAcumulada.element1 += Ka.element1 * I_am.element1; 
+            energiaAcumulada.element2 += Ka.element2 * I_am.element2;
+            energiaAcumulada.element3 += Ka.element3 * I_am.element3;   
+        }
     }
+    energiaAcumulada = energiaAcumulada.multiplyByScalar(255, false);
+    utils::clamp(&energiaAcumulada);
 
-    tupla FinalKa(Ka.element1 * I_am.element1, 
-    Ka.element2 * I_am.element2,
-    Ka.element3 * I_am.element3);
-
-    FinalKa = FinalKa.multiplyByScalar(255, false);
-                    
-    utils::clamp(&FinalKa);
-
-    return FinalKa;
+    return energiaAcumulada;
 }
 
 void utils::clamp(tupla* cores){

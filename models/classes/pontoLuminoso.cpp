@@ -4,8 +4,7 @@ pontoLuminoso::pontoLuminoso(float x, float y, float z, tupla intensidade)
     : ponto(x, y, z), intensidade(intensidade) {
 }
 
-pontoLuminoso::~pontoLuminoso() {
-}
+pontoLuminoso::~pontoLuminoso(){}
 
 tupla pontoLuminoso::getIntensidade(){
     return this->intensidade;

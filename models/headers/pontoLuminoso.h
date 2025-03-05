@@ -3,9 +3,9 @@
 
 #include "./ponto.h"
 #include "./tupla.h"
+#include "luz.h"
 
-class pontoLuminoso : public ponto
-{
+class pontoLuminoso : public luz, public ponto{
 private:
     tupla intensidade;
 public:
