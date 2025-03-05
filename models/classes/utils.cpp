@@ -69,9 +69,7 @@ tupla utils::calcularCores(float T, raio raio, tupla normal, std::vector<luz*>& 
     return cores;
 }
 
-tupla utils::calcularSombra(ponto Pi, std::vector<luz*>& luzes, tupla Ka, tupla I_am, tupla cores, std::vector<objeto*>& objetos){
-    tupla energiaAcumulada(cores.element1/255, cores.element2/255, cores.element3/255); // Energia total das luzes
-    
+tupla utils::calcularSombra(ponto Pi, std::vector<luz*>& luzes, tupla Ka, tupla I_am, tupla cores, std::vector<objeto*>& objetos){    
     for(luz* luzPtr: luzes){
         bool emSombra = true; // Flag para verificar se o ponto está sombreado
 
@@ -94,23 +92,18 @@ tupla utils::calcularSombra(ponto Pi, std::vector<luz*>& luzes, tupla Ka, tupla 
 
             if (t == -1000 || t > comprimento || t < 1)
             {
-                emSombra = false;
+                return cores;
             }
         } // Inserir os outros casos aqui de luzes
 
 
 
-        // Se a luz não estiver bloqueada, soma sua contribuição à energia total
-        if(!emSombra){
-            energiaAcumulada.element1 += Ka.element1 * I_am.element1; 
-            energiaAcumulada.element2 += Ka.element2 * I_am.element2;
-            energiaAcumulada.element3 += Ka.element3 * I_am.element3;   
-        }
     }
-    energiaAcumulada = energiaAcumulada.multiplyByScalar(255, false);
-    utils::clamp(&energiaAcumulada);
+    tupla FinalKa(Ka.element1 * I_am.element1, Ka.element2 * I_am.element2, Ka.element3 * I_am.element3);
+    FinalKa = FinalKa.multiplyByScalar(255, false);
+    utils::clamp(&FinalKa);
 
-    return energiaAcumulada;
+    return FinalKa;
 }
 
 void utils::clamp(tupla* cores){
