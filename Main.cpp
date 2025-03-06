@@ -31,6 +31,7 @@ const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -30.0f;
 const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.2f,0.2f,0.7f), I_FONTE(0.6f, 0.6f, 0.6f), K_D_PLANO1(0.2f, 0.7f, 0.2f), K_D_PLANO2(0.3f, 0.3f, 0.7f), K_E_PLANO(0.0f, 0.0f, 0.0f), I_AMBIENTE(0.1f, 0.1f, 0.1f);
 ponto eye(0.0f, 0.0f, P0Z), look_at(0.0f, 0.0f, -100.0f), ponto_up(0.0f, 1.0f, -100.0f); //cordenadas que definem a câmera
 tupla up(0.0f, 1.0f, 0.0f);
+string projecao = "perspectiva";
 
 const tupla X_AXIS(1.0f, 0.0f, 0.0f), Y_AXIS(0.0f, 1.0f, 0.0f), Z_AXIS(0.0f, 0.0f, 1.0f);
 
@@ -59,9 +60,9 @@ int main(int argc, char* argv[]) {
     ponto P0(0.0f, 0.0f, P0Z);
 
     vector<luz*> luzes = {
-        //new pontoLuminoso(0.0f, 0.0f, P0Z, I_FONTE),
+        new pontoLuminoso(0.0f, 0.0f, P0Z, I_FONTE)
         //new luzSpot(0.0f, 60.0f, -100.0f, I_FONTE, tupla::sub(ponto(0.0f, 0.0f, -100.0f), ponto(0.0f, 30.0f, -100.0f), true), 30.0f),
-        new luzDirecional(I_FONTE, tupla(1/sqrt(2.0f), 1/sqrt(2.0f), 0))
+        //new luzDirecional(I_FONTE, tupla(1/sqrt(3.0f), 1/sqrt(3.0f), 1/sqrt(3.0f)))
     };
 
     vector<triangulo*> faces = {
@@ -83,14 +84,21 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             // Atalhos para encerrar a janela
             if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) { rodando = false; }
+            
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
+                    // Atalhos para movimentação da câmera
                     case SDLK_d: eye.x += 1.0f; break;
                     case SDLK_a: eye.x -= 1.0f; break;
                     case SDLK_SPACE: eye.y += 1.0f; break;
                     case SDLK_LSHIFT: eye.y -= 1.0f; break;
                     case SDLK_w: eye.z -= 1.0f; break;
                     case SDLK_s: eye.z += 1.0f; break;
+                    
+                   // Atalhos para a definição da perspectiva
+                    case SDLK_1: projecao = "perspectiva"; break; // Perspectiva (padrão)
+                    case SDLK_2: projecao = "ortografica"; break; // Ortográfica
+                    case SDLK_3: projecao = "obliqua"; break; // Oblíqua
                 }
             }
         }
@@ -102,9 +110,22 @@ int main(int argc, char* argv[]) {
             float Py = HJANELA / 2.0f - y * DY - DY / 2.0f;
             for (int x = 0; x < NLINHA; x++) {
                 float Px = -WJANELA / 2.0f + x * DX + DX / 2.0f;
+                // Definição da projeção
+                ponto eye_atual = eye;
+
+                if(projecao == "ortografica"){ 
+                    eye_atual = ponto(Px, Py, P0Z); // Projeção ortográfica: Ponto parte do centro de cada píxel
+                }
+                else if(projecao == "obliqua"){
+                    tupla direcao_obliqua(1.0f, 1.0f, -1.0f); // Vetor direção para a projeção oblíqua
+                    direcao_obliqua.normalize(); // Normaliza para garantir proporção correta
+
+                    eye_atual = ponto(Px + direcao_obliqua.element1, Py + direcao_obliqua.element2,P0Z + direcao_obliqua.element3); // Projeção oblíqua: Ponto parte do centro de cada píxel com direção igual ao vetor passado
+                }
+
                 // Definição da câmera
                 tupla p_camera(Px, Py, P0Z - DIST);
-                matriz cameraTransform = matriz::cameraToWorld(eye, look_at, ponto_up);
+                matriz cameraTransform = matriz::cameraToWorld(eye_atual, look_at, ponto_up);
                 p_camera = cameraTransform.multTupla(p_camera);
 
                 ponto p_mundo(
@@ -113,7 +134,7 @@ int main(int argc, char* argv[]) {
                     p_camera.element3
                 );
 
-                raio ray(eye, tupla::sub(p_mundo, eye, true));
+                raio ray(eye_atual, tupla::sub(p_mundo, eye, true));
 
                 // Detecção do objeto mais próximo ao observador com nenhuma obstrução
                 int index = -1;
