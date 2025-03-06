@@ -9,6 +9,8 @@
 #include "./models/headers/esfera.h"
 #include "./models/headers/objeto.h"
 #include "./models/headers/pontoLuminoso.h"
+#include "./models/headers/luzSpot.h"
+#include "./models/headers/luzDirecional.h"
 #include "./models/headers/utils.h"
 #include "./models/headers/plano.h"
 #include "./models/headers/cilindro.h"
@@ -57,7 +59,9 @@ int main(int argc, char* argv[]) {
     ponto P0(0.0f, 0.0f, P0Z);
 
     vector<luz*> luzes = {
-        new pontoLuminoso(0.0f, 0.0f, P0Z, I_FONTE)
+        //new pontoLuminoso(0.0f, 0.0f, P0Z, I_FONTE),
+        //new luzSpot(0.0f, 60.0f, -100.0f, I_FONTE, tupla::sub(ponto(0.0f, 0.0f, -100.0f), ponto(0.0f, 30.0f, -100.0f), true), 30.0f),
+        new luzDirecional(I_FONTE, tupla(1/sqrt(2.0f), 1/sqrt(2.0f), 0))
     };
 
     vector<triangulo*> faces = {
