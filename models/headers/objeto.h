@@ -21,6 +21,8 @@ public:
     virtual float colisao(raio raio) {
         return -1000;
     };
+    virtual void transladar(float x, float y, float z){};
+    virtual void rotacionar(ponto p1, ponto p2, float theta){};
 };
 
 #endif

@@ -137,3 +137,15 @@ float cone::colisao(raio raio){
     
     return min(T3, TSup);
 }
+
+void cone::transladar(float x, float y, float z){
+    matriz M = matriz::translacao(x,y,z);
+    centroBase = M.multPonto(centroBase);
+    vertice = M.multPonto(vertice);
+}
+
+void cone::rotacionar(ponto p1, ponto p2, float theta){
+    matriz M = matriz::rotacao(p1, p2, theta);
+    centroBase = M.multPonto(centroBase);
+    vertice = M.multPonto(vertice);
+}

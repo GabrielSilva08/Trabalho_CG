@@ -1,6 +1,7 @@
 #include "../headers/triangulo.h"
 #include <iostream>
 #include <math.h>
+#include "../headers/matriz.h"
 
 using namespace std;
 
@@ -71,4 +72,19 @@ float triangulo::colisao(raio ray) {
     }
 
     return t; // O ponto está dentro do triângulo
+}
+
+void triangulo::transladar(float x, float y, float z){
+    matriz M = matriz::translacao(x,y,z);
+    v1 = M.multPonto(v1);
+    v2 = M.multPonto(v2);
+    v3 = M.multPonto(v3);
+}
+
+void triangulo::rotacionar(ponto p1, ponto p2, float theta){
+    matriz M = matriz::rotacao(p1, p2, theta);
+    v1 = M.multPonto(v1);
+    v2 = M.multPonto(v2);
+    v3 = M.multPonto(v3);
+    normal = calcNormal(); //recalculando a normal
 }

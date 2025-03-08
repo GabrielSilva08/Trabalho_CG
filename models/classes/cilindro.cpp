@@ -149,3 +149,15 @@ float cilindro::colisao(raio raio){
     
     return retorno;
 }
+
+void cilindro::transladar(float x, float y, float z){
+    matriz M = matriz::translacao(x,y,z);
+    centroBase = M.multPonto(centroBase);
+    centroTopo = M.multPonto(centroTopo);
+}
+
+void cilindro::rotacionar(ponto p1, ponto p2, float theta){
+    matriz M = matriz::rotacao(p1, p2, theta);
+    centroBase = M.multPonto(centroBase);
+    centroTopo = M.multPonto(centroTopo);
+}

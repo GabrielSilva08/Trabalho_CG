@@ -14,6 +14,8 @@ public:
     ponto getCentro();
     float getRaio();
     float colisao(raio raio) override;
+    void transladar(float x, float y, float z) override;
+    void rotacionar(ponto p1, ponto p2, float theta) override;
     ~esfera();
 };
 

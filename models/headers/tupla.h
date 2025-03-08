@@ -22,6 +22,7 @@ public:
     tupla multiplyByScalar(float scalar, bool normalize) const;
     tupla cross(const tupla& other, bool normalize) const;
     float dot(const tupla& other) const;
+    float dotPonto(ponto p) const;
     ~tupla();
 };
 #endif

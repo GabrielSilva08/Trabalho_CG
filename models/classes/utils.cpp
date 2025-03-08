@@ -5,6 +5,9 @@
 #include <algorithm>
 #include <cfloat> 
 #include "../headers/cilindro.h"
+#include "../headers/luzSpot.h"
+#include "../headers/luzDirecional.h"
+
 using namespace std;
 tupla utils::calcularDiff(ponto Pi, tupla normal, ponto fonte, tupla Kdif, tupla I_PONTUAL){
     tupla luz = tupla::sub(fonte, Pi, true); 
@@ -38,60 +41,131 @@ tupla utils::calcularEspec(ponto Pi, ponto P0, tupla normal, ponto fonte, float 
     return I_Espec;
 }
 
-tupla utils::calcularCores(float T, raio raio, tupla normal, pontoLuminoso luz, tupla I_am, objeto* objeto ){
+tupla utils::calcularCores(float T, raio raio, tupla normal, std::vector<luz*>& luzes, tupla I_am, objeto* objeto){
     ponto P0 = raio.getP0();
     tupla aux = raio.getDist().multiplyByScalar(T, false);
-
     ponto Pi(P0.getCoord().at(0) + aux.element1, P0.getCoord().at(1) + aux.element2, P0.getCoord().at(2)  + aux.element3);
-    ponto pontoLuz(luz.getCoord().at(0), luz.getCoord().at(1), luz.getCoord().at(2));
-
-    tupla I_dif = utils::calcularDiff(Pi, normal, pontoLuz, objeto->getKd(), luz.getIntensidade());
-    tupla I_espec = utils::calcularEspec(Pi, P0, normal, pontoLuz, objeto->getM(), objeto->getKe(), luz.getIntensidade());
-
     tupla Ka(objeto->getKa().element1 * I_am.element1, 
-    objeto->getKa().element2 * I_am.element2,
-    objeto->getKa().element3 * I_am.element3);
+             objeto->getKa().element2 * I_am.element2,
+             objeto->getKa().element3 * I_am.element3);
 
-    tupla cores = tupla::addTupla(Ka, I_dif, false);
-    cores = tupla::addTupla(cores, I_espec, false);
-    cores = cores.multiplyByScalar(255, false);
+    tupla cores = Ka;
 
-                    
+    for (luz* luzPtr : luzes){
+        // Luz pontual
+        if(pontoLuminoso* posLuz = dynamic_cast<pontoLuminoso*>(luzPtr)){
+            ponto pontoLuz(posLuz->getCoord().at(0), posLuz->getCoord().at(1), posLuz->getCoord().at(2));
+            tupla I_dif = utils::calcularDiff(Pi, normal, pontoLuz, objeto->getKd(), posLuz->getIntensidade());
+            tupla I_espec = utils::calcularEspec(Pi, P0, normal, pontoLuz, objeto->getM(), objeto->getKe(), posLuz->getIntensidade());
+            
+            cores = tupla::addTupla(cores, I_dif, false);
+            cores = tupla::addTupla(cores, I_espec, false);
+        }
+        // Luz Spot
+        else if(luzSpot* spotLuz = dynamic_cast<luzSpot*>(luzPtr)){
+            tupla l = tupla::sub(*spotLuz, Pi, true); // Vetor luz
+            tupla d = spotLuz->getDirecao(); // Vetor direção principal da luz spot
+            float angulo = acos((-1) * l.dot(d)) * 180.0f / M_PI; // Ângulo entre alpha e -df (graus)
+            if(angulo < spotLuz->getAng_abertura()){
+                ponto pontoLuz(spotLuz->getCoord().at(0), spotLuz->getCoord().at(1), spotLuz->getCoord().at(2));
+                tupla I_dif = utils::calcularDiff(Pi, normal, pontoLuz, objeto->getKd(), spotLuz->getIntensidade());
+                //tupla I_espec = utils::calcularEspec(Pi, P0, normal, pontoLuz, objeto->getM(), objeto->getKe(), spotLuz->getIntensidade());
+                
+                I_dif = I_dif.multiplyByScalar((-1)*l.dot(d), false);
+                cores = tupla::addTupla(cores, I_dif, false);
+                //cores = tupla::addTupla(cores, I_espec, false);
+            }
+        }
+        // Luz Direcional
+        else if(luzDirecional* direcionalLuz = dynamic_cast<luzDirecional*>(luzPtr)){
+            tupla l = direcionalLuz->getDirecao(); // Vetor luz
+            // Calculando I_dif diretamente
+            tupla Kdif = objeto->getKd();
+            tupla I_PONTUAL = direcionalLuz->getIntensidade();
+            float luminosidade = fmaxf(0.0f, normal.dot(l));
+
+            tupla I_dif(Kdif.element1 * I_PONTUAL.element1 * luminosidade, Kdif.element2 * I_PONTUAL.element2 * luminosidade, Kdif.element3 * I_PONTUAL.element3 * luminosidade);
+            // Calculando I_espec diretamente
+            float REFLEXIVIDADE = objeto->getM();
+            tupla Kesp = objeto->getKe();           
+            tupla reflexo = normal.multiplyByScalar(normal.dot(l), false);
+
+            reflexo = reflexo.multiplyByScalar(2, false);
+            reflexo = tupla::subTupla(reflexo, l, false);
+            reflexo.normalize();
+
+            tupla visao = tupla::sub(P0, Pi, true);
+
+            float reflexao = powf(fmax(0.0f, reflexo.dot(visao)), REFLEXIVIDADE);
+
+            tupla I_espec(Kesp.element1 * I_PONTUAL.element1 * reflexao, Kesp.element2 * I_PONTUAL.element2 * reflexao, Kesp.element3 * I_PONTUAL.element3 * reflexao);
+        
+            cores = tupla::addTupla(cores, I_dif, false);
+            cores = tupla::addTupla(cores, I_espec, false);
+        }
+    }
+
+    cores = cores.multiplyByScalar(255, false);                    
     utils::clamp(&cores);
 
     return cores;
 }
 
-tupla utils::calcularSombra(ponto Pi, pontoLuminoso fonte, tupla Ka, tupla I_am, tupla cores, std::vector<objeto*>& objetos){
-    tupla dist = tupla::sub(fonte, Pi, false);
-    float comprimento = sqrt(pow(dist.element1, 2.0f) + pow(dist.element2, 2.0f) + pow(dist.element3, 2.0f));
+tupla utils::calcularSombra(ponto Pi, std::vector<luz*>& luzes, tupla Ka, tupla I_am, tupla cores, std::vector<objeto*>& objetos){    
+    for(luz* luzPtr: luzes){
+        bool emSombra = true; // Flag para verificar se o ponto está sombreado
 
-    raio raio(Pi, tupla::sub(fonte, Pi, true));
+        // Luz pontual
+        if(pontoLuminoso* posLuz = dynamic_cast<pontoLuminoso*>(luzPtr)){
+            tupla dist = tupla::sub(*posLuz, Pi, false);
+            float comprimento = sqrt(pow(dist.element1, 2.0f) + pow(dist.element2, 2.0f) + pow(dist.element3, 2.0f));
 
-    float t = -1000;
+            raio raio(Pi, tupla::sub(*posLuz, Pi, true));
+            float t = -1000;
 
-    for (int i = 0; i < objetos.size(); i++)
-    {
-         
-        float aux = objetos[i]->colisao(raio);
-        
-        if ((t == -1000 && aux != -1000) || (t != -1000 && aux != -1000 && aux < t))
-        {
-            t = aux;
-        }      
+            for(int i = 0; i < objetos.size(); i++){
+                float aux = objetos[i]->colisao(raio);
+
+                if ((t == -1000 && aux != -1000) || (t != -1000 && aux != -1000 && aux < t))
+                {
+                    t = aux;
+                }      
+            }
+
+            if (t == -1000 || t > comprimento || t < 1)
+            {
+                return cores;
+            }
+        }
+        // Luz Spot 
+        else if(luzSpot* posLuz = dynamic_cast<luzSpot*>(luzPtr)){
+            tupla dist = tupla::sub(*posLuz, Pi, false);
+            float comprimento = sqrt(pow(dist.element1, 2.0f) + pow(dist.element2, 2.0f) + pow(dist.element3, 2.0f));
+
+            raio raio(Pi, tupla::sub(*posLuz, Pi, true));
+            float t = -1000;
+
+            for(int i = 0; i < objetos.size(); i++){
+                float aux = objetos[i]->colisao(raio);
+
+                if ((t == -1000 && aux != -1000) || (t != -1000 && aux != -1000 && aux < t))
+                {
+                    t = aux;
+                }      
+            }
+
+            if (t == -1000 || t > comprimento || t < 1)
+            {
+                return cores;
+            }
+        }
+        // Luz Direcional
+        else if(luzDirecional* posLuz = dynamic_cast<luzDirecional*>(luzPtr)){
+            return cores;
+        }
     }
-    
-    if (t == -1000 || t > comprimento || t < 1)
-    {
-        return cores;
-    }
-
-    tupla FinalKa(Ka.element1 * I_am.element1, 
-    Ka.element2 * I_am.element2,
-    Ka.element3 * I_am.element3);
-
+    tupla FinalKa(Ka.element1 * I_am.element1, Ka.element2 * I_am.element2, Ka.element3 * I_am.element3);
     FinalKa = FinalKa.multiplyByScalar(255, false);
-                    
     utils::clamp(&FinalKa);
 
     return FinalKa;
