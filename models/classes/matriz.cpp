@@ -110,11 +110,55 @@ matriz matriz::cameraToWorld(ponto eye, ponto at, ponto up) {
     );
 }
 
+matriz matriz::translacao(float x, float y, float z){
+    return matriz(
+        tupla(1,0,0,x),
+        tupla(1,1,0,y),
+        tupla(0,0,1,z)
+    );
+}
+
+matriz matriz::rotacao(ponto p1, ponto p2, float theta){
+    tupla U = tupla::sub(p2, p1, true);
+
+    float x = std::sin(theta/2)*U.element1;
+    float y = std::sin(theta/2)*U.element2;
+    float z = std::sin(theta/2)*U.element3;
+    float w = std::cos(theta/2);
+
+    float x2 = std::pow(x,2);
+    float y2 = std::pow(y,2);
+    float z2 = std::pow(z,2);
+    float w2 = std::pow(w,2);
+    float xy = x*y;
+    float xz = x*z;
+    float xw = x*w;
+    float yz = y*z;
+    float yw = y*w;
+    float zw = z*w;
+
+    matriz Q = matriz(
+        tupla((w2 + x2 - y2 - z2), 2*(xy - zw), 2*(xz + yw), 0),
+        tupla(2*(xy + zw), (w2 - x2 + y2 - z2), 2*(yz - xw), 0),
+        tupla(2*(xz - yw), 2*(yz + xw), (w2 - x2 - y2 + z2), 0)
+    );
+
+    return matriz::translacao(-p1.x, -p1.y, -p1.z).multMatriz(Q).multMatriz(matriz::translacao(p1.x, p1.y, p1.z));
+}
+
 tupla matriz::multTupla(tupla vetorColuna) {
     return tupla(
         linha1.dot(vetorColuna),
         linha2.dot(vetorColuna),
         linha3.dot(vetorColuna),
         linha4.dot(vetorColuna)
+    );
+}
+
+ponto matriz::multPonto(ponto p) {
+    return ponto(
+        linha1.dotPonto(p),
+        linha2.dotPonto(p),
+        linha3.dotPonto(p)
     );
 }

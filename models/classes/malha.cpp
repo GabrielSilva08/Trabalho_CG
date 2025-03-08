@@ -31,3 +31,17 @@ float malha::colisao(raio ray) {
     
     return (intersecI != -1) ? menorDistancia : -1000.0f;
 }
+
+void malha::transladar(float x, float y, float z){
+    for (triangulo* face : faces)
+    {
+        face->transladar(x,y,z); //chamando a função de translação para todas as faces
+    }
+}
+
+void malha::rotacionar(ponto p1, ponto p2, float theta){
+    for (triangulo* face : faces)
+    {
+        face->rotacionar(p1,p2,theta); //chamando a função de rotação para todas as faces
+    }
+}

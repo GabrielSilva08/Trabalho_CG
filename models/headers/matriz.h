@@ -21,10 +21,13 @@ public:
     static matriz multComTransposta(tupla tupla);
     static matriz worldToCamera(ponto eye, ponto at, ponto up);
     static matriz cameraToWorld(ponto eye, ponto at, ponto up);
+    static matriz translacao(float x, float y, float z);
+    static matriz rotacao(ponto p1, ponto p2, float theta);
     matriz multMatriz(matriz Matriz);
     matriz addMatriz(matriz Matriz);
     matriz subMatriz(matriz Matriz);
     tupla multTupla(tupla vetorColuna);
+    ponto multPonto(ponto vetorColuna);
 };
 
 #endif

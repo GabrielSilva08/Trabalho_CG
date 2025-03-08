@@ -1,4 +1,5 @@
 #include "../headers/esfera.h"
+#include "../headers/matriz.h"
 #include <cmath>
 
 esfera::esfera(ponto centro, float radius, tupla Kd, tupla Ke, tupla Ka, float M)
@@ -36,6 +37,16 @@ float esfera::colisao(raio raio){
     }
     
     return -1000;
+}
+
+void esfera::transladar(float x, float y, float z){
+    matriz M = matriz::translacao(x, y, z);
+    centro = M.multPonto(centro);
+}
+
+void esfera::rotacionar(ponto p1, ponto p2, float theta){
+    matriz M = matriz::rotacao(p1, p2, theta);
+    centro = M.multPonto(centro);
 }
 
 esfera::~esfera(){

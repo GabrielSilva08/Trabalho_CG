@@ -4,7 +4,7 @@
 // Construtor
 tupla::tupla(float element1, float element2, float element3) 
     : element1(element1), element2(element2), element3(element3) {
-        this->element4 = 1;
+        this->element4 = 0;
     }
 
 tupla::tupla(float element1, float element2, float element3, float element4) 
@@ -14,12 +14,12 @@ tupla::tupla(){
     element1 = 0;
     element2 = 0;
     element3 = 0;
-    element4 = 1;
+    element4 = 0;
 }
 
 // Normaliza a tupla
 void tupla::normalize() {
-    float magnitude = std::sqrt(element1 * element1 + element2 * element2 + element3 * element3);
+    float magnitude = std::sqrt(element1 * element1 + element2 * element2 + element3 * element3 + element4 * element4);
     if (magnitude > 0) {
         element1 /= magnitude;
         element2 /= magnitude;
@@ -28,9 +28,12 @@ void tupla::normalize() {
 }
 
 float tupla::dot(const tupla& other) const {
-    return element1 * other.element1 + element2 * other.element2 + element3 * other.element3;
+    return element1 * other.element1 + element2 * other.element2 + element3 * other.element3 + element4 * other.element4;
 }
 
+float tupla::dotPonto(ponto p) const {
+    return element1 * p.x + element2 * p.y + element3 * p.z + element4 * p.aux;
+}
 
 // Adiciona duas tuplas e normaliza o resultado
 tupla tupla::add(ponto P1, ponto P2, bool normalize) {
@@ -47,7 +50,7 @@ tupla tupla::add(ponto P1, ponto P2, bool normalize) {
 
 tupla tupla::addTupla(tupla T1, tupla T2, bool normalize) {
 
-    tupla result(T1.element1 + T2.element1, T1.element2+ T2.element2, T1.element3 + T2.element3);
+    tupla result(T1.element1 + T2.element1, T1.element2+ T2.element2, T1.element3 + T2.element3, T1.element4 + T2.element4);
     if (normalize)
     {
         result.normalize();  // Normaliza o resultado
@@ -57,10 +60,8 @@ tupla tupla::addTupla(tupla T1, tupla T2, bool normalize) {
 
 // Subtrai duas tuplas e normaliza o resultado
 tupla tupla::sub(ponto P1, ponto P2, bool normalize) {
-    std::array<float, 3> coords1 = P1.getCoord();
-    std::array<float, 3> coords2 = P2.getCoord();
 
-    tupla result(coords1[0] - coords2[0], coords1[1] - coords2[1], coords1[2] - coords2[2]);
+    tupla result(P1.x - P2.x, P1.y - P2.y, P1.z - P2.z, P1.aux - P2.aux);
     if (normalize)
     {
         result.normalize();  // Normaliza o resultado
