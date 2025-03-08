@@ -17,9 +17,15 @@ tupla::tupla(){
     element4 = 1;
 }
 
+// Comprimento da tupla
+float tupla::magnitude(){
+    return std::sqrt(element1 * element1 + element2 * element2 + element3 * element3);
+}
+
+
 // Normaliza a tupla
 void tupla::normalize() {
-    float magnitude = std::sqrt(element1 * element1 + element2 * element2 + element3 * element3);
+    float magnitude = this->magnitude();
     if (magnitude > 0) {
         element1 /= magnitude;
         element2 /= magnitude;

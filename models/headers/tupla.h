@@ -14,6 +14,7 @@ public:
     tupla(float element1, float element2, float element3);
     tupla(float element1, float element2, float element3, float element4);
     tupla();
+    float magnitude();
     void normalize();
     static tupla add(ponto P1, ponto P2, bool normalize);
     static tupla sub(ponto P1, ponto P2, bool normalize);

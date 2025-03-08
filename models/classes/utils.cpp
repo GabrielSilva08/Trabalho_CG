@@ -7,6 +7,8 @@
 #include "../headers/cilindro.h"
 #include "../headers/luzSpot.h"
 #include "../headers/luzDirecional.h"
+#include "../headers/plano.h"
+#include "../headers/textura.h"
 
 using namespace std;
 tupla utils::calcularDiff(ponto Pi, tupla normal, ponto fonte, tupla Kdif, tupla I_PONTUAL){
@@ -48,8 +50,29 @@ tupla utils::calcularCores(float T, raio raio, tupla normal, std::vector<luz*>& 
     tupla Ka(objeto->getKa().element1 * I_am.element1, 
              objeto->getKa().element2 * I_am.element2,
              objeto->getKa().element3 * I_am.element3);
-
     tupla cores = Ka;
+
+    // Adicionando textura ao plano (se o for)
+    if(plano* PL = dynamic_cast<plano*>(objeto)){
+        // Verificando se o plano possui textura
+        if(PL->getHas_texture()){
+            // Cálculo da base
+            tupla base1 = (PL->getNormal().cross(tupla(1,0,0), true));
+            if(base1.magnitude() < 1e-6) base1 = (PL->getNormal().cross(tupla(0,1,0), true));
+            tupla base2 = PL->getNormal().cross(base1, false);
+            
+            // Cálculo das coordenadas da textura
+            double u = (tupla::sub(Pi, P0, false)).dot(base1); 
+            u *= 1/PL->getY_tex_scale(); // eixo z
+            
+            double v = (tupla::sub(Pi, P0, false)).dot(base2);
+            v *= 1/PL->getX_tex_scale(); // eixo z
+
+            cout << "(u,v) = " << "(" << u << "," << v << ")";
+            cores = PL->textura_plano->sample(u, v);
+            cout << "Cheguei aqui cores!";
+        }
+    }
 
     for (luz* luzPtr : luzes){
         // Luz pontual

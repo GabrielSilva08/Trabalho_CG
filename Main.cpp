@@ -20,6 +20,7 @@
 #include "./models/headers/matriz.h"
 #include "./src/include/SDL2/SDL_events.h"
 #include "./src/include/SDL2/SDL_keycode.h"
+#include "./models/headers/textura.h"
 using namespace std;
 
 // Dimensões em pixels da window
@@ -32,6 +33,7 @@ const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.2f,0.2f,0.7f), I_FONTE(0.6f, 0
 ponto eye(0.0f, 0.0f, P0Z), look_at(0.0f, 0.0f, -100.0f), ponto_up(0.0f, 1.0f, -100.0f); //cordenadas que definem a câmera
 tupla up(0.0f, 1.0f, 0.0f);
 string projecao = "perspectiva";
+textura floor_plane = textura("wood_texture.jpg");
 
 const tupla X_AXIS(1.0f, 0.0f, 0.0f), Y_AXIS(0.0f, 1.0f, 0.0f), Z_AXIS(0.0f, 0.0f, 1.0f);
 
@@ -72,7 +74,8 @@ int main(int argc, char* argv[]) {
     
     vector<objeto*> objetos = {
         new esfera(ponto(0.0f, 0.0f, -100.0f), 20.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
-        new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, K_D_PLANO1, K_E_PLANO, K_D_PLANO1, M_PLANO),
+        new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, K_D_PLANO1, K_E_PLANO, K_D_PLANO1, M_PLANO, &floor_plane, 1, 1),
+        //new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, K_D_PLANO1, K_E_PLANO, K_D_PLANO1, M_PLANO),
         new plano(ponto(0.0f, 0.0f, -200.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
     };
 
