@@ -27,6 +27,10 @@ void tupla::normalize() {
     }
 }
 
+float tupla::magnitude(){
+    return std::sqrt(element1 * element1 + element2 * element2 + element3 * element3 + element4 * element4);
+}
+
 float tupla::dot(const tupla& other) const {
     return element1 * other.element1 + element2 * other.element2 + element3 * other.element3 + element4 * other.element4;
 }

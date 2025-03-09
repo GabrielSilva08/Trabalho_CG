@@ -3,7 +3,7 @@
 #include <cmath>
 
 matriz::matriz(tupla linha1, tupla linha2, tupla linha3) : linha1(linha1), linha2(linha2), linha3(linha3){
-    this->linha4 = tupla();
+    this->linha4 = tupla(0,0,0,1);
 }
 
 matriz::matriz(tupla linha1, tupla linha2, tupla linha3, tupla linha4) : linha1(linha1), linha2(linha2), linha3(linha3), linha4(linha4){}
@@ -23,8 +23,9 @@ matriz matriz::identidade(){
     tupla linha1(1,0,0,0);
     tupla linha2(0,1,0,0);
     tupla linha3(0,0,1,0);
+    tupla linha4(0,0,0,1);
 
-    return matriz(linha1, linha2, linha3);
+    return matriz(linha1, linha2, linha3, linha4);
 }
 
 matriz matriz::multComTransposta(tupla Tupla){
@@ -143,7 +144,8 @@ matriz matriz::rotacao(ponto p1, ponto p2, float theta){
     matriz Q = matriz(
         tupla((w2 + x2 - y2 - z2), 2*(xy - zw), 2*(xz + yw), 0),
         tupla(2*(xy + zw), (w2 - x2 + y2 - z2), 2*(yz - xw), 0),
-        tupla(2*(xz - yw), 2*(yz + xw), (w2 - x2 - y2 + z2), 0)
+        tupla(2*(xz - yw), 2*(yz + xw), (w2 - x2 - y2 + z2), 0),
+        tupla(0,0,0,1)
     );
 
     return matriz::translacao(-p1.x, -p1.y, -p1.z).multMatriz(Q).multMatriz(matriz::translacao(p1.x, p1.y, p1.z));

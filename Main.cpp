@@ -20,6 +20,7 @@
 #include "./models/headers/matriz.h"
 #include "./src/include/SDL2/SDL_events.h"
 #include "./src/include/SDL2/SDL_keycode.h"
+#include "./models/headers/textura.h"
 using namespace std;
 
 // Dimensões em pixels da window
@@ -27,9 +28,11 @@ const int NCOL = 500, NLINHA = 500;
 // Dimensões reais da janela
 const float DIST = 30.0f, WJANELA = 60.0f, HJANELA = 60.0f, DX = WJANELA/NCOL, DY = HJANELA/NLINHA;
 // Dimensões dos objetos da cena
-const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -50.0f;
+const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -20.0f;
 const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.8f,0.8f,0.8f), I_FONTE(0.6f, 0.6f, 0.6f), K_D_PLANO1(0.2f, 0.7f, 0.2f), K_D_PLANO2(0.3f, 0.3f, 0.7f), K_E_PLANO(0.0f, 0.0f, 0.0f), I_AMBIENTE(0.1f, 0.1f, 0.1f);
 ponto eye(0.0f, 0.0f, P0Z), look_at(0.0f, 0.0f, 100.0f), ponto_up(0.0f, 1.0f, 100.0f); //cordenadas que definem a câmera
+string projecao = "perspectiva";
+textura floor_plane = textura("wood_texture.jpg");
 
 const tupla X_AXIS(1.0f, 0.0f, 0.0f), Y_AXIS(0.0f, 1.0f, 0.0f), Z_AXIS(0.0f, 0.0f, -1.0f);
 
@@ -39,6 +42,12 @@ int main(int argc, char* argv[]) {
         cerr << "Erro ao inicializar SDL: " << SDL_GetError() << endl;
         return 1;
     }
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        std::cerr << "Erro ao inicializar SDL_image: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+
     // Inicialização da janela SDL
     SDL_Window* window = SDL_CreateWindow("Ray Casting", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, NCOL, NLINHA, 0);
     if (!window) {
@@ -87,8 +96,8 @@ int main(int argc, char* argv[]) {
         //new cilindro(ponto(0.0f, -20.0f, 100.0f), ponto(0.0f, 0.0f, 100.0f), 3.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
         //new cilindro(ponto(0.0f, 0.0f, 100.0f), ponto(0.0f, 2.0f, 100.0f), 20.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
         //new malha(faces),
-        new cone(ponto(0.0f, 10.0f, 100.0f), ponto(0.0f, -20.0f, 100.0f), 30, K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, K_D_PLANO1, K_E_PLANO, K_D_PLANO1, M_PLANO),
+        //new cone(ponto(0.0f, 10.0f, 100.0f), ponto(0.0f, -20.0f, 100.0f), 30, K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, tupla(0,0,0), tupla(0,0,0), K_D_PLANO1, M_PLANO, &floor_plane, 0.01, 0.01),
         new plano(ponto(0.0f, 0.0f, 200.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
     };
 
@@ -100,14 +109,21 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             // Atalhos para encerrar a janela
             if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)) { rodando = false; }
+            
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
+                    // Atalhos para movimentação da câmera
                     case SDLK_d: eye.x += 1.0f; break;
                     case SDLK_a: eye.x -= 1.0f; break;
                     case SDLK_w: eye.y += 1.0f; break;
                     case SDLK_s: eye.y -= 1.0f; break;
                     case SDLK_LSHIFT: eye.z -= 1.0f; break;
                     case SDLK_SPACE: eye.z += 1.0f; break;
+                    
+                   // Atalhos para a definição da perspectiva
+                    case SDLK_1: projecao = "perspectiva"; break; // Perspectiva (padrão)
+                    case SDLK_2: projecao = "ortografica"; break; // Ortográfica
+                    case SDLK_3: projecao = "obliqua"; break; // Oblíqua
                 }
             }
             if (event.type == SDL_MOUSEBUTTONDOWN)
@@ -147,13 +163,26 @@ int main(int argc, char* argv[]) {
             float Py = HJANELA / 2.0f - y * DY - DY / 2.0f;
             for (int x = 0; x < NLINHA; x++) {
                 float Px = -WJANELA / 2.0f + x * DX + DX / 2.0f;
+                // Definição da projeção
+                ponto eye_atual = eye;
+
+                if(projecao == "ortografica"){ 
+                    eye_atual = ponto(Px, Py, P0Z); // Projeção ortográfica: Ponto parte do centro de cada píxel
+                }
+                else if(projecao == "obliqua"){
+                    tupla direcao_obliqua(1.0f, 1.0f, -1.0f); // Vetor direção para a projeção oblíqua
+                    direcao_obliqua.normalize(); // Normaliza para garantir proporção correta
+
+                    eye_atual = ponto(Px + direcao_obliqua.element1, Py + direcao_obliqua.element2,P0Z + direcao_obliqua.element3); // Projeção oblíqua: Ponto parte do centro de cada píxel com direção igual ao vetor passado
+                }
+
                 // Definição da câmera
                 ponto p_camera(Px, Py, P0Z - DIST);
                 matriz cameraWorld = matriz::cameraToWorld(eye, look_at, ponto_up);
 
                 ponto p_mundo = cameraWorld.multPonto(p_camera);
 
-                raio ray(eye, tupla::sub(p_mundo, eye, true));
+                raio ray(eye_atual, tupla::sub(p_mundo, eye, true));
 
                 // Detecção do objeto mais próximo ao observador com nenhuma obstrução
                 int index = -1;
