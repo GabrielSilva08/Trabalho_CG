@@ -221,7 +221,7 @@ void utils::deletar(objeto* o, vector<objeto*>& objetos){
 }
 
 void utils::transformar(objeto* o){
-    cout << "Escolha a transformação desejada, 1 para translação, 2 para rotação" << endl;
+    cout << "Escolha a transformação desejada, 1 para translação, 2 para rotação. 3 para escala (escala só disponível para malha)" << endl;
     int t;
     cin >> t;
     switch (t)

@@ -86,7 +86,8 @@ int main(int argc, char* argv[]) {
     vector<objeto*> objetos = {
         //new cilindro(ponto(0.0f, -20.0f, 100.0f), ponto(0.0f, 0.0f, 100.0f), 3.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
         //new cilindro(ponto(0.0f, 0.0f, 100.0f), ponto(0.0f, 2.0f, 100.0f), 20.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
-        new malha(faces),
+        //new malha(faces),
+        new cone(ponto(0.0f, 10.0f, 100.0f), ponto(0.0f, -20.0f, 100.0f), 30, K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
         new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, K_D_PLANO1, K_E_PLANO, K_D_PLANO1, M_PLANO),
         new plano(ponto(0.0f, 0.0f, 200.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
     };
