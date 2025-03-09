@@ -27,12 +27,11 @@ const int NCOL = 500, NLINHA = 500;
 // Dimensões reais da janela
 const float DIST = 30.0f, WJANELA = 60.0f, HJANELA = 60.0f, DX = WJANELA/NCOL, DY = HJANELA/NLINHA;
 // Dimensões dos objetos da cena
-const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -30.0f;
-const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.2f,0.2f,0.7f), I_FONTE(0.6f, 0.6f, 0.6f), K_D_PLANO1(0.2f, 0.7f, 0.2f), K_D_PLANO2(0.3f, 0.3f, 0.7f), K_E_PLANO(0.0f, 0.0f, 0.0f), I_AMBIENTE(0.1f, 0.1f, 0.1f);
-ponto eye(0.0f, 0.0f, P0Z), look_at(0.0f, 0.0f, -100.0f), ponto_up(0.0f, 1.0f, -100.0f); //cordenadas que definem a câmera
-tupla up(0.0f, 1.0f, 0.0f);
+const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -50.0f;
+const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.8f,0.8f,0.8f), I_FONTE(0.6f, 0.6f, 0.6f), K_D_PLANO1(0.2f, 0.7f, 0.2f), K_D_PLANO2(0.3f, 0.3f, 0.7f), K_E_PLANO(0.0f, 0.0f, 0.0f), I_AMBIENTE(0.1f, 0.1f, 0.1f);
+ponto eye(0.0f, 0.0f, P0Z), look_at(0.0f, 0.0f, 100.0f), ponto_up(0.0f, 1.0f, 100.0f); //cordenadas que definem a câmera
 
-const tupla X_AXIS(1.0f, 0.0f, 0.0f), Y_AXIS(0.0f, 1.0f, 0.0f), Z_AXIS(0.0f, 0.0f, 1.0f);
+const tupla X_AXIS(1.0f, 0.0f, 0.0f), Y_AXIS(0.0f, 1.0f, 0.0f), Z_AXIS(0.0f, 0.0f, -1.0f);
 
 int main(int argc, char* argv[]) {
     // Inicialização da API SDL
@@ -55,24 +54,41 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
-    // Definição dos objetos da cena
-    ponto P0(0.0f, 0.0f, P0Z);
 
     vector<luz*> luzes = {
-        //new pontoLuminoso(0.0f, 0.0f, P0Z, I_FONTE),
+        new pontoLuminoso(0.0f, 0.0f, P0Z, I_FONTE),
         //new luzSpot(0.0f, 60.0f, -100.0f, I_FONTE, tupla::sub(ponto(0.0f, 0.0f, -100.0f), ponto(0.0f, 30.0f, -100.0f), true), 30.0f),
-        new luzDirecional(I_FONTE, tupla(1/sqrt(2.0f), 1/sqrt(2.0f), 0))
+        //new luzDirecional(I_FONTE, tupla(1/sqrt(2.0f), 1/sqrt(2.0f), 0))
     };
 
+    /*vector<triangulo*> faces = {
+        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(5.0f, 2.5f, 100.0f), ponto(10.0f, 2.5f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(5.0f, 2.5f, 105.0f), ponto(10.0f, 2.5f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(10.0f, 2.5f, 100.0f), ponto(10.0f, 3.0f, 98.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(10.0f, 3.0f, 98.0f), ponto(5.0f, 3.0f, 98.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(10.0f, 2.5f, 105.0f), ponto(12.0f, 3.0f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(12.0f, 3.0f, 105.0f), ponto(12.0f, 3.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(10.0f, 2.5f, 105.0f), ponto(5.0f, 2.5f, 105.0f), ponto(5.0f, 3.0f, 107.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(10.0f, 2.5f, 105.0f), ponto(5.0f, 3.0f, 107.0f), ponto(10.0f, 3.0f, 107.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(3.0f, 3.0f, 100.0f), ponto(5.0f, 2.5f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 2.5f, 105.0f), ponto(3.0f, 3.0f, 100.0f), ponto(3.0f, 3.0f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(12.0f, 3.0f, 100.0f), ponto(10.0f, 3.0f, 98.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(10.0f, 2.5f, 105.0f), ponto(10.0f, 3.0f, 107.0f), ponto(12.0f, 3.0f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 2.5f, 105.0f), ponto(3.0f, 3.0f, 105.0f), ponto(5.0f, 3.0f, 107.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(5.0f, 3.0f, 98.0f), ponto(3.0f, 3.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+    };*/
+
     vector<triangulo*> faces = {
-        new triangulo(ponto(0.0f, 0.0f, -100.0f), ponto(5.0f, 0.0f, -100.0f), ponto(0.0f, 5.0f, -100.0f), K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
-        new triangulo(ponto(5.0f, 5.0f, -100.0f), ponto(5.0f, 0.0f, -100.0f), ponto(0.0f, 5.0f, -100.0f), K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
+        new triangulo(ponto(0.0f, 0.0f, 100.0f), ponto(5.0f, 0.0f, 100.0f), ponto(5.0f, 5.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(5.0f, 5.0f, 100.0f), ponto(0.0f, 5.0f, 100.0f), ponto(0.0f, 0.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA)
     };
     
     vector<objeto*> objetos = {
-        new esfera(ponto(0.0f, 0.0f, -100.0f), 20.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
+        //new cilindro(ponto(0.0f, -20.0f, 100.0f), ponto(0.0f, 0.0f, 100.0f), 3.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
+        //new cilindro(ponto(0.0f, 0.0f, 100.0f), ponto(0.0f, 2.0f, 100.0f), 20.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
+        new malha(faces),
         new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, K_D_PLANO1, K_E_PLANO, K_D_PLANO1, M_PLANO),
-        new plano(ponto(0.0f, 0.0f, -200.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
+        new plano(ponto(0.0f, 0.0f, 200.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
     };
 
     vector<float> distancias(objetos.size());
@@ -87,12 +103,40 @@ int main(int argc, char* argv[]) {
                 switch (event.key.keysym.sym) {
                     case SDLK_d: eye.x += 1.0f; break;
                     case SDLK_a: eye.x -= 1.0f; break;
-                    case SDLK_SPACE: eye.y += 1.0f; break;
-                    case SDLK_LSHIFT: eye.y -= 1.0f; break;
-                    case SDLK_w: eye.z -= 1.0f; break;
-                    case SDLK_s: eye.z += 1.0f; break;
+                    case SDLK_w: eye.y += 1.0f; break;
+                    case SDLK_s: eye.y -= 1.0f; break;
+                    case SDLK_LSHIFT: eye.z -= 1.0f; break;
+                    case SDLK_SPACE: eye.z += 1.0f; break;
                 }
             }
+            if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                float x = event.button.x;
+                float y = event.button.y;
+
+                float Px = -WJANELA / 2.0f + x * DX + DX / 2.0f;
+                float Py = HJANELA / 2.0f - y * DY - DY / 2.0f;
+
+                ponto p_camera(Px, Py, P0Z - DIST);
+                matriz cameraWorld = matriz::cameraToWorld(eye, look_at, ponto_up);
+
+                ponto p_mundo = cameraWorld.multPonto(p_camera);
+
+                raio raio(eye, tupla::sub(p_mundo, eye, true));
+
+                objeto* o = utils::pick(raio, objetos);
+
+                switch (event.button.button)
+                {
+                case SDL_BUTTON_RIGHT:
+                    utils::deletar(o, objetos);
+                    break;
+                case SDL_BUTTON_LEFT:
+                    utils::transformar(o);
+                    break;
+                }
+            }
+            
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Define a cor de fundo como preto
@@ -103,15 +147,10 @@ int main(int argc, char* argv[]) {
             for (int x = 0; x < NLINHA; x++) {
                 float Px = -WJANELA / 2.0f + x * DX + DX / 2.0f;
                 // Definição da câmera
-                tupla p_camera(Px, Py, P0Z - DIST);
-                matriz cameraTransform = matriz::cameraToWorld(eye, look_at, ponto_up);
-                p_camera = cameraTransform.multTupla(p_camera);
+                ponto p_camera(Px, Py, P0Z - DIST);
+                matriz cameraWorld = matriz::cameraToWorld(eye, look_at, ponto_up);
 
-                ponto p_mundo(
-                    p_camera.element1,
-                    p_camera.element2,
-                    p_camera.element3
-                );
+                ponto p_mundo = cameraWorld.multPonto(p_camera);
 
                 raio ray(eye, tupla::sub(p_mundo, eye, true));
 

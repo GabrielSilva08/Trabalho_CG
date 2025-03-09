@@ -18,11 +18,10 @@ public:
     tupla getKe();
     tupla getKa();
     float getM();
-    virtual float colisao(raio raio) {
-        return -1000;
-    };
+    virtual float colisao(raio raio) {return -1000;};
     virtual void transladar(float x, float y, float z){};
     virtual void rotacionar(ponto p1, ponto p2, float theta){};
+    virtual void escalar(float x, float y, float z){};
 };
 
 #endif

@@ -19,6 +19,12 @@ public:
 
     static tupla calcularSombra(ponto Pi, std::vector<luz*>& luzes, tupla Ka,tupla I_am, tupla cores, std::vector<objeto*>& objetos);
 
+    static objeto* pick(raio ray, std::vector<objeto*>& objetos);
+
+    static void deletar(objeto* o, std::vector<objeto*>& objetos);
+    
+    static void transformar(objeto* o);
+
     static void clamp(tupla* cores);
 };
 

@@ -23,6 +23,7 @@ public:
     static matriz cameraToWorld(ponto eye, ponto at, ponto up);
     static matriz translacao(float x, float y, float z);
     static matriz rotacao(ponto p1, ponto p2, float theta);
+    static matriz escala(float x, float y, float z, ponto p);
     matriz multMatriz(matriz Matriz);
     matriz addMatriz(matriz Matriz);
     matriz subMatriz(matriz Matriz);

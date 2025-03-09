@@ -7,6 +7,8 @@
 #include "../headers/cilindro.h"
 #include "../headers/luzSpot.h"
 #include "../headers/luzDirecional.h"
+#include "../../src/include/SDL2/SDL_render.h"
+#include "../headers/triangulo.h"
 
 using namespace std;
 tupla utils::calcularDiff(ponto Pi, tupla normal, ponto fonte, tupla Kdif, tupla I_PONTUAL){
@@ -185,5 +187,90 @@ void utils::clamp(tupla* cores){
     if (cores->element3 > 255)
     {
         cores->element3 = 255;
+    }
+}
+
+objeto* utils::pick(raio ray, std::vector<objeto*>& objetos){
+    float t = -1000.0;
+    objeto* retorno = nullptr;
+    for (objeto* o : objetos)
+    {
+        float aux = o->colisao(ray);
+
+        if ((t == -1000 && aux != -1000) || (t != -1000 && aux != -1000 && aux < t))
+            {
+                t = aux;
+                retorno = o;
+            }
+    }
+    
+    return retorno;
+}
+
+void utils::deletar(objeto* o, vector<objeto*>& objetos){
+    auto it = find(objetos.begin(), objetos.end(), o);
+
+    if (it != objetos.end())
+    {
+        objetos.erase(it);
+        cout << "objeto deletado com sucesso" << endl;
+    } else{
+        cerr << "elemento não encontrado" << endl;
+    }
+    
+}
+
+void utils::transformar(objeto* o){
+    cout << "Escolha a transformação desejada, 1 para translação, 2 para rotação" << endl;
+    int t;
+    cin >> t;
+    switch (t)
+    {
+    case 1:
+    {
+        float x,y,z;
+        cout << "Digite as componentes x y z da translação" << endl;
+        cin >> x >> y >> z;
+
+        o->transladar(x,y,z);
+
+        cout << "objeto transladado com sucesso" << endl;
+        
+        break;
+    }
+    case 2:
+    {
+        float p1x, p1y, p1z, p2x, p2y, p2z, theta;
+        cout << "Digite o x, y e z do p1 do eixo de rotação:" << endl;
+        cin >> p1x >> p1y >> p1z;
+        cout << "Agora, digite o x, y e z do p2 do eixo de rotação:" << endl;
+        cin >> p2x >> p2y >> p2z;
+        cout << "Por fim, digite o ângulo theta de rotação (a rotação será no sentido anti-horário):" << endl;
+        cin >> theta;
+
+        ponto p1(p1x, p1y, p1z);
+        ponto p2(p2x, p2y, p2z);
+
+        o->rotacionar(p1, p2, theta);
+
+        cout << "objeto rotacionado com sucesso" << endl;
+
+        break;
+    }
+    case 3:
+    {
+        float x,y,z;
+        cout << "Digite as componentes x y z da escala" << endl;
+        cin >> x >> y >> z;
+
+        o->escalar(x,y,z);
+
+        cout << "Objeto escalado com sucesso" << endl;
+
+        break;
+    }
+    default:
+        cerr << "transformação inválida" << endl;
+        break;
     }
 }
