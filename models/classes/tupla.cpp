@@ -14,7 +14,7 @@ tupla::tupla(){
     element1 = 0;
     element2 = 0;
     element3 = 0;
-    element4 = 0;
+    element4 = 1;
 }
 
 // Normaliza a tupla

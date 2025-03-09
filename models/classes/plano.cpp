@@ -1,8 +1,9 @@
 #include "../headers/plano.h"
 #include <iostream>
 
-plano::plano(ponto Pi, tupla Normal, tupla Kd, tupla Ke, tupla Ka, float M) : Pi(Pi), Normal(Normal),  objeto(Kd, Ke, Ka, M) {
-}
+plano::plano(ponto Pi, tupla Normal, tupla Kd, tupla Ke, tupla Ka, float M) : Pi(Pi), Normal(Normal),  objeto(Kd, Ke, Ka, M), has_texture(false) {}
+
+plano::plano(ponto Pi, tupla Normal, tupla Kd, tupla Ke, tupla Ka, float M, textura* textura_plano, double x_texture_scale, double y_texture_scale) : Pi(Pi), Normal(Normal),  objeto(Kd, Ke, Ka, M), has_texture(true), textura_plano(textura_plano), x_texture_scale(x_texture_scale), y_texture_scale(y_texture_scale) {}
 
 ponto plano::getPi(){
     return this-> Pi;
@@ -10,6 +11,17 @@ ponto plano::getPi(){
 
 tupla plano::getNormal(){
     return this->Normal;
+}
+
+bool plano::getHas_texture(){
+    return this->has_texture;
+}
+double plano::getX_tex_scale(){
+    return this->x_texture_scale;
+}
+    
+double plano::getY_tex_scale(){
+    return this->y_texture_scale;
 }
 
 float plano::colisao(raio raio) {
