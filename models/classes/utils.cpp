@@ -62,17 +62,22 @@ tupla utils::calcularCores(float T, raio raio, tupla normal, std::vector<luz*>& 
             tupla base1 = (PL->getNormal().cross(tupla(1,0,0), true));
             if(base1.magnitude() < 1e-6) base1 = (PL->getNormal().cross(tupla(0,1,0), true));
             tupla base2 = PL->getNormal().cross(base1, false);
+
+            tupla aux = (tupla::sub(Pi, P0, false));
             
             // Cálculo das coordenadas da textura
-            double u = (tupla::sub(Pi, P0, false)).dot(base1); 
-            u *= 1/PL->getY_tex_scale(); // eixo z
+            double u = aux.dot(base1); 
+            u *= PL->getX_tex_scale(); // eixo z
             
-            double v = (tupla::sub(Pi, P0, false)).dot(base2);
-            v *= 1/PL->getX_tex_scale(); // eixo z
+            double v = aux.dot(base2);
+            v *= PL->getY_tex_scale(); // eixo z
 
-            cout << "(u,v) = " << "(" << u << "," << v << ")";
+            u = u - floor(u);
+            v = v - floor(v);
+
+            //cout << "(u,v) = " << "(" << u << "," << v << ")";
             cores = PL->textura_plano->sample(u, v);
-            cout << "Cheguei aqui cores!";
+            //cout << "Cheguei aqui cores!";
         }
     }
 
@@ -94,11 +99,11 @@ tupla utils::calcularCores(float T, raio raio, tupla normal, std::vector<luz*>& 
             if(angulo < spotLuz->getAng_abertura()){
                 ponto pontoLuz(spotLuz->getCoord().at(0), spotLuz->getCoord().at(1), spotLuz->getCoord().at(2));
                 tupla I_dif = utils::calcularDiff(Pi, normal, pontoLuz, objeto->getKd(), spotLuz->getIntensidade());
-                //tupla I_espec = utils::calcularEspec(Pi, P0, normal, pontoLuz, objeto->getM(), objeto->getKe(), spotLuz->getIntensidade());
+                tupla I_espec = utils::calcularEspec(Pi, P0, normal, pontoLuz, objeto->getM(), objeto->getKe(), spotLuz->getIntensidade());
                 
                 I_dif = I_dif.multiplyByScalar((-1)*l.dot(d), false);
                 cores = tupla::addTupla(cores, I_dif, false);
-                //cores = tupla::addTupla(cores, I_espec, false);
+                cores = tupla::addTupla(cores, I_espec, false);
             }
         }
         // Luz Direcional

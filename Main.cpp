@@ -28,7 +28,7 @@ const int NCOL = 500, NLINHA = 500;
 // Dimensões reais da janela
 const float DIST = 30.0f, WJANELA = 60.0f, HJANELA = 60.0f, DX = WJANELA/NCOL, DY = HJANELA/NLINHA;
 // Dimensões dos objetos da cena
-const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -50.0f;
+const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -20.0f;
 const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.8f,0.8f,0.8f), I_FONTE(0.6f, 0.6f, 0.6f), K_D_PLANO1(0.2f, 0.7f, 0.2f), K_D_PLANO2(0.3f, 0.3f, 0.7f), K_E_PLANO(0.0f, 0.0f, 0.0f), I_AMBIENTE(0.1f, 0.1f, 0.1f);
 ponto eye(0.0f, 0.0f, P0Z), look_at(0.0f, 0.0f, 100.0f), ponto_up(0.0f, 1.0f, 100.0f); //cordenadas que definem a câmera
 string projecao = "perspectiva";
@@ -42,6 +42,12 @@ int main(int argc, char* argv[]) {
         cerr << "Erro ao inicializar SDL: " << SDL_GetError() << endl;
         return 1;
     }
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        std::cerr << "Erro ao inicializar SDL_image: " << IMG_GetError() << std::endl;
+        return 1;
+    }
+
     // Inicialização da janela SDL
     SDL_Window* window = SDL_CreateWindow("Ray Casting", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, NCOL, NLINHA, 0);
     if (!window) {
@@ -90,8 +96,8 @@ int main(int argc, char* argv[]) {
         //new cilindro(ponto(0.0f, -20.0f, 100.0f), ponto(0.0f, 0.0f, 100.0f), 3.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
         //new cilindro(ponto(0.0f, 0.0f, 100.0f), ponto(0.0f, 2.0f, 100.0f), 20.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
         //new malha(faces),
-        new cone(ponto(0.0f, 10.0f, 100.0f), ponto(0.0f, -20.0f, 100.0f), 30, K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, K_D_PLANO1, K_E_PLANO, K_D_PLANO1, M_PLANO),
+        //new cone(ponto(0.0f, 10.0f, 100.0f), ponto(0.0f, -20.0f, 100.0f), 30, K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, tupla(0,0,0), tupla(0,0,0), K_D_PLANO1, M_PLANO, &floor_plane, 0.01, 0.01),
         new plano(ponto(0.0f, 0.0f, 200.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
     };
 

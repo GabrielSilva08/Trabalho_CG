@@ -23,9 +23,9 @@ matriz matriz::identidade(){
     tupla linha1(1,0,0,0);
     tupla linha2(0,1,0,0);
     tupla linha3(0,0,1,0);
-    tupla linha3(0,0,0,1);
+    tupla linha4(0,0,0,1);
 
-    return matriz(linha1, linha2, linha3);
+    return matriz(linha1, linha2, linha3, linha4);
 }
 
 matriz matriz::multComTransposta(tupla Tupla){

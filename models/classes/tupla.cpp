@@ -14,7 +14,7 @@ tupla::tupla(){
     element1 = 0;
     element2 = 0;
     element3 = 0;
-    element4 = 1;
+    element4 = 0;
 }
 
 // Normaliza a tupla
@@ -25,6 +25,10 @@ void tupla::normalize() {
         element2 /= magnitude;
         element3 /= magnitude;
     }
+}
+
+float tupla::magnitude(){
+    return std::sqrt(element1 * element1 + element2 * element2 + element3 * element3 + element4 * element4);
 }
 
 float tupla::dot(const tupla& other) const {

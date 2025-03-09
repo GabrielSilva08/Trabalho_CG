@@ -9,9 +9,8 @@
 class textura
 {
 private:
-    std::vector<int> texture_data;
-
 public:
+    std::vector<int> texture_data;
     textura();
     textura(const std::string& file_name);
     textura(SDL_Surface* surface);
