@@ -113,13 +113,16 @@ matriz matriz::cameraToWorld(ponto eye, ponto at, ponto up) {
 matriz matriz::translacao(float x, float y, float z){
     return matriz(
         tupla(1,0,0,x),
-        tupla(1,1,0,y),
-        tupla(0,0,1,z)
+        tupla(0,1,0,y),
+        tupla(0,0,1,z),
+        tupla(0,0,0,1)
     );
 }
 
 matriz matriz::rotacao(ponto p1, ponto p2, float theta){
     tupla U = tupla::sub(p2, p1, true);
+
+    theta *= M_PI/180;
 
     float x = std::sin(theta/2)*U.element1;
     float y = std::sin(theta/2)*U.element2;
@@ -144,6 +147,17 @@ matriz matriz::rotacao(ponto p1, ponto p2, float theta){
     );
 
     return matriz::translacao(-p1.x, -p1.y, -p1.z).multMatriz(Q).multMatriz(matriz::translacao(p1.x, p1.y, p1.z));
+}
+
+matriz matriz::escala(float x, float y, float z, ponto p){
+    matriz Q(
+        tupla(x,0,0,0),
+        tupla(0,y,0,0),
+        tupla(0,0,z,0),
+        tupla(0,0,0,1)
+    );
+
+    return matriz::translacao(-p.x, -p.y, -p.z).multMatriz(Q).multMatriz(matriz::translacao(p.x, p.y, p.z));
 }
 
 tupla matriz::multTupla(tupla vetorColuna) {

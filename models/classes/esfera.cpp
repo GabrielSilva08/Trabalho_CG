@@ -1,6 +1,7 @@
 #include "../headers/esfera.h"
 #include "../headers/matriz.h"
 #include <cmath>
+#include <iostream>
 
 esfera::esfera(ponto centro, float radius, tupla Kd, tupla Ke, tupla Ka, float M)
     : centro(centro), radius(radius), objeto(Kd, Ke, Ka, M)
