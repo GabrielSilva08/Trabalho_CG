@@ -83,15 +83,6 @@ void triangulo::transladar(float x, float y, float z){
 
 void triangulo::rotacionar(ponto p1, ponto p2, float theta){
     
-    cout << "V1: " << endl;
-    cout << v1.x << " " << v1.y << " " << v1.z << endl;
-
-    cout << "V2: " << endl;
-    cout << v2.x << " " << v2.y << " " << v2.z << endl;
-
-    cout << "V3: " << endl;
-    cout << v3.x << " " << v3.y << " " << v3.z << endl;
-    
     matriz M = matriz::rotacao(p1, p2, theta);
     v1 = M.multPonto(v1);
     v2 = M.multPonto(v2);
@@ -99,9 +90,21 @@ void triangulo::rotacionar(ponto p1, ponto p2, float theta){
     normal = calcNormal(); //recalculando a normal
 }
 
-void triangulo::escalarT(float x, float y, float z, ponto p){
+void triangulo::escalarT(float x, float y, float z, ponto p){ 
+    
+    if ((v1.x == p.x && v1.y == p.y && v1.z == p.z))
+    {
+        cout << "Origem" << endl;
+    }
+
     matriz M = matriz::escala(x,y,z,p);
     v1 = M.multPonto(v1);
     v2 = M.multPonto(v2);
     v3 = M.multPonto(v3);
+
+    if ((v1.x == 0 && v1.y == 0 && v1.z == 0))
+    {
+        cout << "Origem2" << endl;
+    }
+    
 }

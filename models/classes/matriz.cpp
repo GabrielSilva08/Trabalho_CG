@@ -148,7 +148,7 @@ matriz matriz::rotacao(ponto p1, ponto p2, float theta){
         tupla(0,0,0,1)
     );
 
-    return matriz::translacao(-p1.x, -p1.y, -p1.z).multMatriz(Q).multMatriz(matriz::translacao(p1.x, p1.y, p1.z));
+    return matriz::translacao(p1.x, p1.y, p1.z).multMatriz(Q).multMatriz(matriz::translacao(-p1.x, -p1.y, -p1.z));
 }
 
 matriz matriz::escala(float x, float y, float z, ponto p){
@@ -159,7 +159,7 @@ matriz matriz::escala(float x, float y, float z, ponto p){
         tupla(0,0,0,1)
     );
 
-    return matriz::translacao(-p.x, -p.y, -p.z).multMatriz(Q).multMatriz(matriz::translacao(p.x, p.y, p.z));
+    return matriz::translacao(p.x, p.y, p.z).multMatriz(Q).multMatriz(matriz::translacao(-p.x, -p.y, -p.z));
 }
 
 tupla matriz::multTupla(tupla vetorColuna) {

@@ -28,13 +28,14 @@ const int NCOL = 500, NLINHA = 500;
 // Dimensões reais da janela
 const float DIST = 30.0f, WJANELA = 60.0f, HJANELA = 60.0f, DX = WJANELA/NCOL, DY = HJANELA/NLINHA;
 // Dimensões dos objetos da cena
-const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = -20.0f;
-const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.8f,0.8f,0.8f), I_FONTE(0.6f, 0.6f, 0.6f), K_D_PLANO1(0.2f, 0.7f, 0.2f), K_D_PLANO2(0.3f, 0.3f, 0.7f), K_E_PLANO(0.0f, 0.0f, 0.0f), I_AMBIENTE(0.1f, 0.1f, 0.1f);
-ponto eye(0.0f, 0.0f, P0Z), look_at(0.0f, 0.0f, 100.0f), ponto_up(0.0f, 1.0f, 100.0f); //cordenadas que definem a câmera
+const float  RAIO = 40.0f, M_ESFERA = 10.0f, M_PLANO = 1.0f, P0Z = 0.0f, M_ESFERA2 = 100.0f;
+const tupla K_ESFERA(0.7f,0.2f,0.2f), K_ESFERA2(0.8f,0.8f,0.8f), I_FONTE(0.6f, 0.6f, 0.6f), K_D_PLANO1(0.2f, 0.7f, 0.2f), K_D_PLANO2(0.3f, 0.3f, 0.7f), K_E_PLANO(0.0f, 0.0f, 0.0f), I_AMBIENTE(0.1f, 0.1f, 0.1f), KD_ESFERA3(0.87f, 0.97f, 0.28f), KE_ESFERA3(0.1f, 0.1f, 0.1f);
+const tupla K_CILINDRO(0.0f, 0.0f, 0.8f), K_CILINDRO2(0.2f, 0.2f, 0.2f), K_CONE(0.2f, 0.8f, 0.2f);
+ponto eye(10.0f, 35.0f, 60.0f), look_at(10.0f, 22.0f, 30.0f), ponto_up(10.0f, 23.0f, 30.0f); //cordenadas que definem a câmera
 string projecao = "perspectiva";
 textura floor_plane = textura("wood_texture.jpg");
 
-const tupla X_AXIS(1.0f, 0.0f, 0.0f), Y_AXIS(0.0f, 1.0f, 0.0f), Z_AXIS(0.0f, 0.0f, -1.0f);
+const tupla X_AXIS(1.0f, 0.0f, 0.0f), Y_AXIS(0.0f, 1.0f, 0.0f), Z_AXIS(0.0f, 0.0f, 1.0f);
 
 int main(int argc, char* argv[]) {
     // Inicialização da API SDL
@@ -65,40 +66,47 @@ int main(int argc, char* argv[]) {
     }
 
     vector<luz*> luzes = {
-        new pontoLuminoso(0.0f, 0.0f, P0Z, I_FONTE),
-        //new luzSpot(0.0f, 60.0f, -100.0f, I_FONTE, tupla::sub(ponto(0.0f, 0.0f, -100.0f), ponto(0.0f, 30.0f, -100.0f), true), 30.0f),
-        //new luzDirecional(I_FONTE, tupla(1/sqrt(2.0f), 1/sqrt(2.0f), 0))
+        new pontoLuminoso(10.0f, 50.0f, 100.0f, I_FONTE),
+        //new luzSpot(10.0f, 52.0f, 30.0f, I_FONTE, tupla(0.0f, -1.0f, 0.0f), 30.0f),
+        //new luzDirecional(I_FONTE, tupla(-1.0f, -1.0f, -1.0f))
     };
 
-    /*vector<triangulo*> faces = {
-        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(5.0f, 2.5f, 100.0f), ponto(10.0f, 2.5f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(5.0f, 2.5f, 105.0f), ponto(10.0f, 2.5f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(10.0f, 2.5f, 100.0f), ponto(10.0f, 3.0f, 98.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(10.0f, 3.0f, 98.0f), ponto(5.0f, 3.0f, 98.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(10.0f, 2.5f, 105.0f), ponto(12.0f, 3.0f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(12.0f, 3.0f, 105.0f), ponto(12.0f, 3.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(10.0f, 2.5f, 105.0f), ponto(5.0f, 2.5f, 105.0f), ponto(5.0f, 3.0f, 107.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(10.0f, 2.5f, 105.0f), ponto(5.0f, 3.0f, 107.0f), ponto(10.0f, 3.0f, 107.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(3.0f, 3.0f, 100.0f), ponto(5.0f, 2.5f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 2.5f, 105.0f), ponto(3.0f, 3.0f, 100.0f), ponto(3.0f, 3.0f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(10.0f, 2.5f, 100.0f), ponto(12.0f, 3.0f, 100.0f), ponto(10.0f, 3.0f, 98.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(10.0f, 2.5f, 105.0f), ponto(10.0f, 3.0f, 107.0f), ponto(12.0f, 3.0f, 105.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 2.5f, 105.0f), ponto(3.0f, 3.0f, 105.0f), ponto(5.0f, 3.0f, 107.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 2.5f, 100.0f), ponto(5.0f, 3.0f, 98.0f), ponto(3.0f, 3.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-    };*/
-
     vector<triangulo*> faces = {
-        new triangulo(ponto(0.0f, 0.0f, 100.0f), ponto(5.0f, 0.0f, 100.0f), ponto(5.0f, 5.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new triangulo(ponto(5.0f, 5.0f, 100.0f), ponto(0.0f, 5.0f, 100.0f), ponto(0.0f, 0.0f, 100.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA)
+        new triangulo(ponto(8.0f, 22.3f, 30.0f), ponto(3.0f, 22.3f, 30.0f), ponto(8.0f, 22.3f, 35.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(3.0f, 22.3f, 30.0f), ponto(3.0f, 22.3f, 35.0f), ponto(8.0f, 22.3f, 35.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(3.0f, 22.3f, 30.0f), ponto(8.0f, 22.3f, 30.0f), ponto(8.0f, 22.8f, 28.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(3.0f, 22.3f, 30.0f), ponto(8.0f, 22.8f, 28.0f), ponto(3.0f, 22.8f, 28.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(8.0f, 22.3f, 30.0f), ponto(8.0f, 22.3f, 35.0f), ponto(10.0f, 22.8f, 35.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(8.0f, 22.3f, 30.0f), ponto(10.0f, 22.8f, 35.0f), ponto(10.0f, 22.8f, 30.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(8.0f, 22.3f, 35.0f), ponto(3.0f, 22.3f, 35.0f), ponto(3.0f, 22.8f, 37.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(8.0f, 22.3f, 35.0f), ponto(3.0f, 22.8f, 37.0f), ponto(8.0f, 22.8f, 37.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(3.0f, 22.3f, 30.0f), ponto(1.0f, 22.8f, 30.0f), ponto(3.0f, 22.3f, 35.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(3.0f, 22.3f, 35.0f), ponto(1.0f, 22.8f, 30.0f), ponto(1.0f, 22.8f, 35.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(8.0f, 22.3f, 30.0f), ponto(10.0f, 22.8f, 30.0f), ponto(8.0f, 22.8f, 28.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(8.0f, 22.3f, 35.0f), ponto(8.0f, 22.8f, 37.0f), ponto(10.0f, 22.8f, 35.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(3.0f, 22.3f, 35.0f), ponto(1.0f, 22.8f, 35.0f), ponto(3.0f, 22.8f, 37.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
+        new triangulo(ponto(3.0f, 22.3f, 30.0f), ponto(3.0f, 22.8f, 28.0f), ponto(1.0f, 22.8f, 30.0f), K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA)
     };
     
     vector<objeto*> objetos = {
-        //new cilindro(ponto(0.0f, -20.0f, 100.0f), ponto(0.0f, 0.0f, 100.0f), 3.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
-        //new cilindro(ponto(0.0f, 0.0f, 100.0f), ponto(0.0f, 2.0f, 100.0f), 20.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA),
-        //new malha(faces),
-        //new cone(ponto(0.0f, 10.0f, 100.0f), ponto(0.0f, -20.0f, 100.0f), 30, K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA),
-        new plano(ponto(0.0f, -20.0f, 0.0f), Y_AXIS, tupla(0,0,0), tupla(0,0,0), K_D_PLANO1, M_PLANO, &floor_plane, 0.01, 0.01),
-        new plano(ponto(0.0f, 0.0f, 200.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
+        //mesa
+        new cilindro(ponto(10.0f, 0.0f, 30.0f), ponto(10.0f, 20.0f, 30.0f), 3.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA, false, true, false),
+        new cilindro(ponto(10.0f, 20.0f, 30.0f), ponto(10.0f, 22.0f, 30.0f), 15.0f, K_ESFERA, K_ESFERA, K_ESFERA, M_ESFERA, true, true, true),
+
+        //prato e fruta
+        new malha(faces),
+        new esfera(ponto(5.0f, 23.2f, 32.0f), 1.5f, KD_ESFERA3, KE_ESFERA3, KD_ESFERA3, M_ESFERA2),
+
+        //copo e bebida
+        new cilindro(ponto(15.0f, 22.0f, 30.0f), ponto(15.0f, 25.0f, 30.0f), 2, K_ESFERA2, K_ESFERA2, K_ESFERA2, M_ESFERA, false, true, false),
+        new cilindro(ponto(15.0f, 22.0f, 30.0f), ponto(15.0f, 24.5f, 30.0f), 2, K_CILINDRO, K_CILINDRO, K_CILINDRO, M_ESFERA, false, false, true),
+
+        //guarda chuva
+        new cilindro(ponto(14.8f, 24.0f, 30.0f), ponto(16.0f, 27.0f, 30.0f), 0.2, K_CILINDRO2, K_CILINDRO2, K_CILINDRO2, M_ESFERA, false, true, false),
+        new cone(ponto(15.814f, 26.5355f, 30.0f), ponto(16.558f ,28.3935f, 30.0f), 3, K_CONE, K_CONE, K_CONE, M_ESFERA2, false, true),
+
+        new plano(ponto(0.0f, 0.0f, 0.0f), Y_AXIS, tupla(0,0,0), tupla(0,0,0), K_D_PLANO1, M_PLANO, &floor_plane, 0.01, 0.01),
+        new plano(ponto(0.0f, 0.0f, 0.0f), Z_AXIS, K_D_PLANO2, K_E_PLANO, K_D_PLANO2, M_PLANO)
     };
 
     vector<float> distancias(objetos.size());
@@ -165,24 +173,26 @@ int main(int argc, char* argv[]) {
                 float Px = -WJANELA / 2.0f + x * DX + DX / 2.0f;
                 // Definição da projeção
                 ponto eye_atual = eye;
+                matriz cameraWorld = matriz::cameraToWorld(eye, look_at, ponto_up);
 
                 if(projecao == "ortografica"){ 
-                    eye_atual = ponto(Px, Py, P0Z); // Projeção ortográfica: Ponto parte do centro de cada píxel
+                    eye_atual = ponto(Px, Py, P0Z);
+                    eye_atual = cameraWorld.multPonto(eye_atual); // Projeção ortográfica: Ponto parte do centro de cada píxel
                 }
                 else if(projecao == "obliqua"){
                     tupla direcao_obliqua(1.0f, 1.0f, -1.0f); // Vetor direção para a projeção oblíqua
                     direcao_obliqua.normalize(); // Normaliza para garantir proporção correta
 
-                    eye_atual = ponto(Px + direcao_obliqua.element1, Py + direcao_obliqua.element2,P0Z + direcao_obliqua.element3); // Projeção oblíqua: Ponto parte do centro de cada píxel com direção igual ao vetor passado
+                    eye_atual = ponto(Px + direcao_obliqua.element1, Py + direcao_obliqua.element2, P0Z + direcao_obliqua.element3); // Projeção oblíqua: Ponto parte do centro de cada píxel com direção igual ao vetor passado
+                    eye_atual = cameraWorld.multPonto(eye_atual);
                 }
 
                 // Definição da câmera
                 ponto p_camera(Px, Py, P0Z - DIST);
-                matriz cameraWorld = matriz::cameraToWorld(eye, look_at, ponto_up);
 
                 ponto p_mundo = cameraWorld.multPonto(p_camera);
 
-                raio ray(eye_atual, tupla::sub(p_mundo, eye, true));
+                raio ray(eye_atual, tupla::sub(p_mundo, eye_atual, true));
 
                 // Detecção do objeto mais próximo ao observador com nenhuma obstrução
                 int index = -1;

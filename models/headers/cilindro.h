@@ -12,7 +12,10 @@ private:
 public:
     bool colisaoBase;
     bool colisaoTopo;
-    cilindro(ponto centroBase, ponto centroTopo, float radius, tupla Kd, tupla Ke, tupla Ka, float M);
+    bool temBase;
+    bool temAnel;
+    bool temTopo;
+    cilindro(ponto centroBase, ponto centroTopo, float radius, tupla Kd, tupla Ke, tupla Ka, float M, bool temBase, bool temAnel, bool temTopo);
     ~cilindro();
     ponto getcentroBase();
     ponto getcentroTopo();

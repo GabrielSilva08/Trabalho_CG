@@ -11,7 +11,9 @@ private:
     float radius;
 public:
     bool colisaoBase;
-    cone(ponto centroBase, ponto vertice, float radius, tupla Kd, tupla Ke, tupla Ka, float M);
+    bool temBase;
+    bool temAnel;
+    cone(ponto centroBase, ponto vertice, float radius, tupla Kd, tupla Ke, tupla Ka, float M, bool temBase, bool temAnel);
     ~cone();
     ponto getCentroBase();
     ponto getVertice();

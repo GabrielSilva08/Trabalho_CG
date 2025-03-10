@@ -113,6 +113,8 @@ void malha::rotacionar(ponto p1, ponto p2, float theta){
 void malha::escalar(float x, float y, float z){
     ponto p = faces.at(0)->getV1(); //ponto arbitrário para fixar
 
+    cout << p.x << " " << p.y << " " << p.z << endl;
+
     for (triangulo* face: faces)
     {
         face->escalarT(x,y,z,p);
